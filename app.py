@@ -38,6 +38,11 @@ HTML_TEMPLATE = """
             --accent-hover: #4f46e5;
             --input-bg: #334155;
             --border: #475569;
+            
+            /* Status Colors */
+            --color-high: #ef4444;      /* Red */
+            --color-moderate: #f59e0b; /* Orange */
+            --color-low: #10b981;      /* Green */
         }
 
         body {
@@ -156,23 +161,44 @@ HTML_TEMPLATE = """
         .btn-secondary:hover { background-color: var(--input-bg); transform: translateY(-2px); }
         .btn-secondary:active { transform: translateY(0); }
 
+        /* Dynamic Result Animation & Colors */
         #result {
             margin-top: 2rem;
             padding: 1.5rem;
-            background-color: rgba(99, 102, 241, 0.1);
-            border: 1px solid var(--accent);
+            background-color: var(--container-bg);
+            border: 2px solid var(--accent);
             border-radius: 12px;
             display: none;
             text-align: center;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            opacity: 0;
         }
 
-        .prediction-text { font-size: 1.6rem; font-weight: bold; color: var(--accent); margin-bottom: 0.8rem; }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            50% { transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Classes added dynamically via JS */
+        .result-high { 
+            border-color: var(--color-high) !important; 
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
+        }
+        .result-high .prediction-text { color: var(--color-high); }
+
+        .result-moderate { 
+            border-color: var(--color-moderate) !important; 
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+        }
+        .result-moderate .prediction-text { color: var(--color-moderate); }
+
+        .result-low { 
+            border-color: var(--color-low) !important; 
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+        }
+        .result-low .prediction-text { color: var(--color-low); }
+
+        .prediction-text { font-size: 1.8rem; font-weight: bold; margin-bottom: 0.8rem; }
     </style>
 </head>
 <body>
@@ -189,7 +215,7 @@ HTML_TEMPLATE = """
         <form id="predictionForm">
             <div class="form-grid">
                 
-                <!-- CONTINUOUS / NUMERICAL FEATURES WITH OUTLIER GUIDES -->
+                <!-- CONTINUOUS / NUMERICAL FEATURES -->
                 <div class="input-group">
                     <label>Age</label>
                     <input type="number" step="any" name="age" placeholder="e.g., 45 (Max: 120)" required>
@@ -236,7 +262,6 @@ HTML_TEMPLATE = """
                 </div>
 
                 <!-- CATEGORICAL DROPDOWNS -->
-                
                 <div class="input-group">
                     <label>Gender</label>
                     <select name="gender" required>
@@ -288,7 +313,7 @@ HTML_TEMPLATE = """
                     </select>
                 </div>
 
-                <!-- UPDATED DIET TYPE -->
+                <!-- EXACT OPTIONS FROM DATASET -->
                 <div class="input-group">
                     <label>Diet Type</label>
                     <select name="diet_type" required>
@@ -300,7 +325,6 @@ HTML_TEMPLATE = """
                     </select>
                 </div>
 
-                <!-- UPDATED CITY -->
                 <div class="input-group">
                     <label>City</label>
                     <select name="city" required>
@@ -326,7 +350,6 @@ HTML_TEMPLATE = """
                     </select>
                 </div>
 
-               <!-- UPDATED INCOME BRACKET -->
                 <div class="input-group">
                     <label>Income Bracket</label>
                     <select name="income_bracket" required>
@@ -336,7 +359,6 @@ HTML_TEMPLATE = """
                         <option value="2">Middle</option>
                     </select>
                 </div>
-
             </div>
 
             <div class="actions">
@@ -362,7 +384,9 @@ HTML_TEMPLATE = """
         // Predict More (Reset) Logic
         document.getElementById('predictMoreBtn').addEventListener('click', () => {
             document.getElementById('predictionForm').reset();
-            document.getElementById('result').style.display = 'none';
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.animation = 'none';
+            resultDiv.style.display = 'none';
         });
 
         // Form Submission & API Call
@@ -392,15 +416,32 @@ HTML_TEMPLATE = """
                 const json = await response.json();
 
                 if (response.ok) {
-                    resultDiv.style.display = 'block';
+                    // Update Text
                     predOutput.textContent = `Predicted Risk: ${json.prediction}`;
                     
                     let probString = 'Probabilities: <br>';
                     for (const [key, value] of Object.entries(json.probabilities)) {
                         probString += `${key}: ${(value * 100).toFixed(2)}% &nbsp;|&nbsp; `;
                     }
-                    // Remove last separator
-                    probOutput.innerHTML = probString.slice(0, -14);
+                    probOutput.innerHTML = probString.slice(0, -14); // Remove last separator
+                    
+                    // Reset classes for colors
+                    resultDiv.className = ''; 
+                    
+                    // Apply dynamic color class based on prediction
+                    if (json.prediction === 'High') {
+                        resultDiv.classList.add('result-high');
+                    } else if (json.prediction === 'Moderate') {
+                        resultDiv.classList.add('result-moderate');
+                    } else if (json.prediction === 'Low') {
+                        resultDiv.classList.add('result-low');
+                    }
+
+                    // Trigger Success Animation (Pop-in)
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.animation = 'none';
+                    resultDiv.offsetHeight; /* trigger reflow to restart animation */
+                    resultDiv.style.animation = 'popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
                     
                     // Scroll to results
                     resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
