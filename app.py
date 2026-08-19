@@ -85,25 +85,24 @@ HTML_TEMPLATE = """
             position: relative;
         }
 
-        /* NEON PURPLE TITLE */
+        /* CLEANER & STABLE NEON PURPLE TITLE */
         h1 { 
             margin-top: 0; 
             text-align: center; 
             font-size: 2.5rem; 
             letter-spacing: 1px;
-            color: #fff;
+            color: #ffffff; /* Pure white text so it's perfectly visible */
             text-shadow: 
-                0 0 5px #fff,
-                0 0 10px #fff,
-                0 0 20px #a855f7,
-                0 0 40px #a855f7,
-                0 0 80px #a855f7;
-            animation: neon-pulse 1.5s infinite alternate;
+                0 0 2px #fff,
+                0 0 4px #a855f7,
+                0 0 15px #a855f7,
+                0 0 25px #a855f7;
+            animation: subtle-pulse 2s infinite alternate;
         }
 
-        @keyframes neon-pulse {
-            0% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #a855f7, 0 0 40px #a855f7, 0 0 80px #a855f7; }
-            100% { text-shadow: 0 0 2px #fff, 0 0 5px #fff, 0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #a855f7; }
+        @keyframes subtle-pulse {
+            0% { text-shadow: 0 0 2px #fff, 0 0 4px #a855f7, 0 0 15px #a855f7, 0 0 25px #a855f7; }
+            100% { text-shadow: 0 0 2px #fff, 0 0 6px #a855f7, 0 0 20px #a855f7, 0 0 35px #a855f7; }
         }
         
         /* Grid for the inputs */
@@ -211,17 +210,18 @@ HTML_TEMPLATE = """
 
         .prediction-text { font-size: 1.8rem; font-weight: bold; margin-bottom: 0.8rem; }
 
-        /* BALLOON CSS */
+        /* FASTER CENTER-SPREAD BALLOON CSS */
         .balloon {
             position: fixed;
-            bottom: -150px;
+            bottom: -100px;
+            left: 50%; /* Start exactly at center */
             width: 40px;
             height: 55px;
             border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
             z-index: 9999;
             pointer-events: none;
             box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
-            animation: floatUp ease-in forwards;
+            animation: floatUpAndSpread ease-in forwards;
         }
         /* The string hanging from the balloon */
         .balloon::after {
@@ -235,9 +235,16 @@ HTML_TEMPLATE = """
             transform: translateX(-50%);
         }
         
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-130vh) rotate(20deg); opacity: 0; }
+        @keyframes floatUpAndSpread {
+            0% { 
+                transform: translate(-50%, 0) scale(0.5); 
+                opacity: 0.9; 
+            }
+            100% { 
+                /* Uses a CSS variable to spread left/right */
+                transform: translate(var(--spread-x), -120vh) scale(1.2); 
+                opacity: 0; 
+            }
         }
     </style>
 </head>
@@ -429,31 +436,34 @@ HTML_TEMPLATE = """
             resultDiv.style.display = 'none';
         });
 
-        // Custom Balloon Generation Function
+        // Updated Custom Balloon Generation Function (Fast Center Spread)
         function spawnBalloons() {
             const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4'];
-            const balloonCount = 30; // How many balloons to spawn
+            const balloonCount = 35; // Number of balloons
 
             for (let i = 0; i < balloonCount; i++) {
                 const balloon = document.createElement('div');
                 balloon.className = 'balloon';
                 
-                // Randomize starting horizontal position
-                balloon.style.left = Math.random() * 100 + 'vw';
+                // Randomly spread to left or right (-80vw to +80vw from center)
+                const spreadX = (Math.random() * 160 - 80) + 'vw';
+                balloon.style.setProperty('--spread-x', spreadX);
                 
-                // Pick a random color from the list
+                // Pick a random color
                 balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 
-                // Randomize animation duration (speed) and delay
-                balloon.style.animationDuration = (Math.random() * 3 + 4) + 's'; // Between 4 and 7 seconds
-                balloon.style.animationDelay = (Math.random() * 1.5) + 's'; // Stagger the spawns
+                // Fast animation: between 1.5 and 3 seconds to reach the top
+                balloon.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+                
+                // Slight random delay so they fountain out smoothly instead of a single block
+                balloon.style.animationDelay = (Math.random() * 0.4) + 's';
                 
                 document.body.appendChild(balloon);
                 
-                // Clean up balloons after they float away (after 8 seconds)
+                // Clean up balloons after 4 seconds (since they go up very fast now)
                 setTimeout(() => {
                     balloon.remove();
-                }, 8000);
+                }, 4000);
             }
         }
 
