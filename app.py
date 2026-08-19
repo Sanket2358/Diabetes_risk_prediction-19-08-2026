@@ -50,89 +50,129 @@ HTML_TEMPLATE = """
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
+            padding: 2rem 0;
         }
 
         /* Mouse Follower Glow Animation */
         #cursor-glow {
             width: 400px;
             height: 400px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 60%);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(0, 0, 0, 0) 60%);
             border-radius: 50%;
             position: fixed;
             pointer-events: none;
             transform: translate(-50%, -50%);
             z-index: 0;
-            transition: top 0.1s ease-out, left 0.1s ease-out;
+            transition: top 0.05s linear, left 0.05s linear;
         }
 
         /* Container Styling */
         .container {
             background-color: var(--container-bg);
-            padding: 2rem 3rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            padding: 2.5rem 3.5rem;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             z-index: 1;
             margin: 2rem;
             border: 1px solid var(--border);
         }
 
-        h1 { margin-top: 0; text-align: center; }
+        h1 { margin-top: 0; text-align: center; font-size: 2.2rem; letter-spacing: 0.5px;}
         
-        /* Grid for the 17 inputs */
+        /* Grid for the inputs */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2.5rem;
         }
 
         .input-group { display: flex; flex-direction: column; }
         .input-group label {
             font-size: 0.85rem;
             color: var(--text-secondary);
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.4rem;
             text-transform: capitalize;
+            font-weight: 500;
         }
 
-        .input-group input {
+        .input-group input, .input-group select {
             background-color: var(--input-bg);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 0.6rem;
-            border-radius: 6px;
+            padding: 0.7rem;
+            border-radius: 8px;
             outline: none;
-            transition: border-color 0.3s;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
-        .input-group input:focus { border-color: var(--accent); }
+        .input-group input:focus, .input-group select:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* REMOVE ARROWS/SPINNERS FROM NUMBER INPUTS */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
 
         /* Buttons & Results */
-        .actions { text-align: center; }
+        .actions { 
+            display: flex; 
+            justify-content: center; 
+            gap: 1rem;
+        }
+        
         button {
-            background-color: var(--accent);
-            color: white;
             border: none;
             padding: 0.8rem 2rem;
             font-size: 1rem;
-            border-radius: 6px;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.1s;
         }
-        button:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background-color: var(--input-bg); transform: translateY(-2px); }
+        .btn-secondary:active { transform: translateY(0); }
 
         #result {
             margin-top: 2rem;
             padding: 1.5rem;
             background-color: rgba(99, 102, 241, 0.1);
             border: 1px solid var(--accent);
-            border-radius: 8px;
+            border-radius: 12px;
             display: none;
             text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
         }
-        .prediction-text { font-size: 1.5rem; font-weight: bold; color: var(--accent); margin-bottom: 1rem; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .prediction-text { font-size: 1.6rem; font-weight: bold; color: var(--accent); margin-bottom: 0.8rem; }
     </style>
 </head>
 <body>
@@ -143,22 +183,152 @@ HTML_TEMPLATE = """
     <div class="container">
         <h1>Diabetes Risk Predictor</h1>
         <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
-            Enter numerical values for all features to generate a prediction.
+            Enter values for all features to generate a prediction.
         </p>
 
         <form id="predictionForm">
             <div class="form-grid">
-                <!-- Dynamically generate inputs based on EXPECTED_FEATURES passed from Flask -->
-                {% for feature in features %}
+                
+                <!-- CONTINUOUS / NUMERICAL FEATURES -->
                 <div class="input-group">
-                    <label for="{{ feature }}">{{ feature.replace('_', ' ') }}</label>
-                    <input type="number" step="any" id="{{ feature }}" name="{{ feature }}" required value="0">
+                    <label>Age</label>
+                    <input type="number" step="any" name="age" placeholder="e.g., 45" required>
                 </div>
-                {% endfor %}
+                
+                <div class="input-group">
+                    <label>BMI</label>
+                    <input type="number" step="any" name="bmi" placeholder="e.g., 25.5" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Hours Sleep Per Night</label>
+                    <input type="number" step="any" name="hours_sleep_per_night" placeholder="e.g., 7" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Stress Level</label>
+                    <input type="number" step="any" name="stress_level" placeholder="e.g., 4" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Fasting Blood Sugar</label>
+                    <input type="number" step="any" name="fasting_blood_sugar" placeholder="e.g., 95" required>
+                </div>
+
+                <div class="input-group">
+                    <label>HbA1c Level</label>
+                    <input type="number" step="any" name="hba1c_level" placeholder="e.g., 5.5" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Blood Pressure Systolic</label>
+                    <input type="number" step="any" name="blood_pressure_systolic" placeholder="e.g., 120" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Blood Pressure Diastolic</label>
+                    <input type="number" step="any" name="blood_pressure_diastolic" placeholder="e.g., 80" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Waist Circumference (cm)</label>
+                    <input type="number" step="any" name="waist_circumference_cm" placeholder="e.g., 90" required>
+                </div>
+
+                <!-- CATEGORICAL DROPDOWNS -->
+                <!-- UPDATE THE TEXT INSIDE <option> TAGS TO MATCH YOUR DATASET'S MEANING -->
+                
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select name="gender" required>
+                        <option value="" disabled selected>Select Gender</option>
+                        <option value="0">Female (0)</option>
+                        <option value="1">Male (1)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Family History Diabetes</label>
+                    <select name="family_history_diabetes" required>
+                        <option value="" disabled selected>Select History</option>
+                        <option value="0">No (0)</option>
+                        <option value="1">Yes (1)</option>
+                        <option value="2">Extended (2)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Smoking Status</label>
+                    <select name="smoking_status" required>
+                        <option value="" disabled selected>Select Status</option>
+                        <option value="0">Non-Smoker (0)</option>
+                        <option value="1">Past Smoker (1)</option>
+                        <option value="2">Current Smoker (2)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Alcohol Consumption</label>
+                    <select name="alcohol_consumption" required>
+                        <option value="" disabled selected>Select Level</option>
+                        <option value="0">None (0)</option>
+                        <option value="1">Low (1)</option>
+                        <option value="2">Moderate (2)</option>
+                        <option value="3">High (3)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Physical Activity Level</label>
+                    <select name="physical_activity_level" required>
+                        <option value="" disabled selected>Select Level</option>
+                        <option value="0">Sedentary (0)</option>
+                        <option value="1">Low (1)</option>
+                        <option value="2">Moderate (2)</option>
+                        <option value="3">High (3)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Diet Type</label>
+                    <select name="diet_type" required>
+                        <option value="" disabled selected>Select Diet</option>
+                        <option value="0">Type 0</option>
+                        <option value="1">Type 1</option>
+                        <option value="2">Type 2</option>
+                        <option value="3">Type 3</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>City</label>
+                    <select name="city" required>
+                        <option value="" disabled selected>Select City Code</option>
+                        <option value="0">City 0</option>
+                        <option value="1">City 1</option>
+                        <option value="2">City 2</option>
+                        <option value="3">City 3</option>
+                        <option value="4">City 4</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Income Bracket</label>
+                    <select name="income_bracket" required>
+                        <option value="" disabled selected>Select Bracket</option>
+                        <option value="0">Bracket 0</option>
+                        <option value="1">Bracket 1</option>
+                        <option value="2">Bracket 2</option>
+                        <option value="3">Bracket 3</option>
+                        <option value="4">Bracket 4</option>
+                    </select>
+                </div>
+
             </div>
 
             <div class="actions">
-                <button type="submit">Predict Risk Level</button>
+                <button type="submit" class="btn-primary">Predict Risk Level</button>
+                <button type="button" class="btn-secondary" id="predictMoreBtn">Predict More</button>
             </div>
         </form>
 
@@ -169,14 +339,20 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
-        // 1. Mouse Animation Logic
+        // Mouse Animation Logic
         const cursor = document.getElementById('cursor-glow');
         document.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
         });
 
-        // 2. Form Submission & API Call
+        // Predict More (Reset) Logic
+        document.getElementById('predictMoreBtn').addEventListener('click', () => {
+            document.getElementById('predictionForm').reset();
+            document.getElementById('result').style.display = 'none';
+        });
+
+        // Form Submission & API Call
         document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -186,6 +362,12 @@ HTML_TEMPLATE = """
             const resultDiv = document.getElementById('result');
             const predOutput = document.getElementById('pred-output');
             const probOutput = document.getElementById('prob-output');
+
+            // Change button text while loading
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
 
             try {
                 const response = await fetch('/predict', {
@@ -200,17 +382,23 @@ HTML_TEMPLATE = """
                     resultDiv.style.display = 'block';
                     predOutput.textContent = `Predicted Risk: ${json.prediction}`;
                     
-                    // Format probabilities
                     let probString = 'Probabilities: <br>';
                     for (const [key, value] of Object.entries(json.probabilities)) {
-                        probString += `${key}: ${(value * 100).toFixed(2)}% | `;
+                        probString += `${key}: ${(value * 100).toFixed(2)}% &nbsp;|&nbsp; `;
                     }
-                    probOutput.innerHTML = probString.slice(0, -2); // remove last pipe
+                    // Remove last separator
+                    probOutput.innerHTML = probString.slice(0, -14);
+                    
+                    // Scroll to results
+                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 } else {
                     alert("Error: " + json.error);
                 }
             } catch (error) {
                 alert("Failed to connect to the server.");
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
             }
         });
     </script>
@@ -220,8 +408,7 @@ HTML_TEMPLATE = """
 
 @app.route('/', methods=['GET'])
 def home():
-    # Serve the HTML string directly
-    return render_template_string(HTML_TEMPLATE, features=EXPECTED_FEATURES)
+    return render_template_string(HTML_TEMPLATE)
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -229,10 +416,7 @@ def predict():
         data = request.get_json()
         df = pd.DataFrame([data])
         
-        # Ensure columns are in the exact order the model expects
         df = df[EXPECTED_FEATURES]
-        
-        # Convert all inputs to float (since HTML forms send strings)
         df = df.astype(float)
 
         prediction = model.predict(df)
