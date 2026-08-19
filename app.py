@@ -189,61 +189,60 @@ HTML_TEMPLATE = """
         <form id="predictionForm">
             <div class="form-grid">
                 
-                <!-- CONTINUOUS / NUMERICAL FEATURES -->
+                <!-- CONTINUOUS / NUMERICAL FEATURES WITH OUTLIER GUIDES -->
                 <div class="input-group">
                     <label>Age</label>
-                    <input type="number" step="any" name="age" placeholder="e.g., 45" required>
+                    <input type="number" step="any" name="age" placeholder="e.g., 45 (Max: 120)" required>
                 </div>
                 
                 <div class="input-group">
                     <label>BMI</label>
-                    <input type="number" step="any" name="bmi" placeholder="e.g., 25.5" required>
+                    <input type="number" step="any" name="bmi" placeholder="e.g., 25.5 (Max: 60)" required>
                 </div>
 
                 <div class="input-group">
                     <label>Hours Sleep Per Night</label>
-                    <input type="number" step="any" name="hours_sleep_per_night" placeholder="e.g., 7" required>
+                    <input type="number" step="any" name="hours_sleep_per_night" placeholder="e.g., 7 (Max: 24)" required>
                 </div>
                 
                 <div class="input-group">
                     <label>Stress Level</label>
-                    <input type="number" step="any" name="stress_level" placeholder="e.g., 4" required>
+                    <input type="number" step="any" name="stress_level" placeholder="e.g., 4 (Scale 1-10)" required>
                 </div>
 
                 <div class="input-group">
                     <label>Fasting Blood Sugar</label>
-                    <input type="number" step="any" name="fasting_blood_sugar" placeholder="e.g., 95" required>
+                    <input type="number" step="any" name="fasting_blood_sugar" placeholder="e.g., 95 (Max: 350)" required>
                 </div>
 
                 <div class="input-group">
                     <label>HbA1c Level</label>
-                    <input type="number" step="any" name="hba1c_level" placeholder="e.g., 5.5" required>
+                    <input type="number" step="any" name="hba1c_level" placeholder="e.g., 5.5 (Max: 15.0)" required>
                 </div>
 
                 <div class="input-group">
                     <label>Blood Pressure Systolic</label>
-                    <input type="number" step="any" name="blood_pressure_systolic" placeholder="e.g., 120" required>
+                    <input type="number" step="any" name="blood_pressure_systolic" placeholder="e.g., 120 (Max: 220)" required>
                 </div>
 
                 <div class="input-group">
                     <label>Blood Pressure Diastolic</label>
-                    <input type="number" step="any" name="blood_pressure_diastolic" placeholder="e.g., 80" required>
+                    <input type="number" step="any" name="blood_pressure_diastolic" placeholder="e.g., 80 (Max: 130)" required>
                 </div>
 
                 <div class="input-group">
                     <label>Waist Circumference (cm)</label>
-                    <input type="number" step="any" name="waist_circumference_cm" placeholder="e.g., 90" required>
+                    <input type="number" step="any" name="waist_circumference_cm" placeholder="e.g., 90 (Max: 200)" required>
                 </div>
 
-                <!-- CATEGORICAL DROPDOWNS -->
-                <!-- UPDATE THE TEXT INSIDE <option> TAGS TO MATCH YOUR DATASET'S MEANING -->
+                <!-- CATEGORICAL DROPDOWNS WITHOUT NUMBERS IN DISPLAY TEXT -->
                 
                 <div class="input-group">
                     <label>Gender</label>
                     <select name="gender" required>
                         <option value="" disabled selected>Select Gender</option>
-                        <option value="0">Female (0)</option>
-                        <option value="1">Male (1)</option>
+                        <option value="0">Female</option>
+                        <option value="1">Male</option>
                     </select>
                 </div>
 
@@ -251,9 +250,9 @@ HTML_TEMPLATE = """
                     <label>Family History Diabetes</label>
                     <select name="family_history_diabetes" required>
                         <option value="" disabled selected>Select History</option>
-                        <option value="0">No (0)</option>
-                        <option value="1">Yes (1)</option>
-                        <option value="2">Extended (2)</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                        <option value="2">Extended</option>
                     </select>
                 </div>
 
@@ -261,9 +260,9 @@ HTML_TEMPLATE = """
                     <label>Smoking Status</label>
                     <select name="smoking_status" required>
                         <option value="" disabled selected>Select Status</option>
-                        <option value="0">Non-Smoker (0)</option>
-                        <option value="1">Past Smoker (1)</option>
-                        <option value="2">Current Smoker (2)</option>
+                        <option value="0">Non-Smoker</option>
+                        <option value="1">Past Smoker</option>
+                        <option value="2">Current Smoker</option>
                     </select>
                 </div>
 
@@ -271,10 +270,10 @@ HTML_TEMPLATE = """
                     <label>Alcohol Consumption</label>
                     <select name="alcohol_consumption" required>
                         <option value="" disabled selected>Select Level</option>
-                        <option value="0">None (0)</option>
-                        <option value="1">Low (1)</option>
-                        <option value="2">Moderate (2)</option>
-                        <option value="3">High (3)</option>
+                        <option value="0">None</option>
+                        <option value="1">Low</option>
+                        <option value="2">Moderate</option>
+                        <option value="3">High</option>
                     </select>
                 </div>
                 
@@ -282,10 +281,10 @@ HTML_TEMPLATE = """
                     <label>Physical Activity Level</label>
                     <select name="physical_activity_level" required>
                         <option value="" disabled selected>Select Level</option>
-                        <option value="0">Sedentary (0)</option>
-                        <option value="1">Low (1)</option>
-                        <option value="2">Moderate (2)</option>
-                        <option value="3">High (3)</option>
+                        <option value="0">Sedentary</option>
+                        <option value="1">Low</option>
+                        <option value="2">Moderate</option>
+                        <option value="3">High</option>
                     </select>
                 </div>
 
