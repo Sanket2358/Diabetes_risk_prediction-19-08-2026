@@ -82,9 +82,29 @@ HTML_TEMPLATE = """
             z-index: 1;
             margin: 2rem;
             border: 1px solid var(--border);
+            position: relative;
         }
 
-        h1 { margin-top: 0; text-align: center; font-size: 2.2rem; letter-spacing: 0.5px;}
+        /* NEON PURPLE TITLE */
+        h1 { 
+            margin-top: 0; 
+            text-align: center; 
+            font-size: 2.5rem; 
+            letter-spacing: 1px;
+            color: #fff;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px #a855f7,
+                0 0 40px #a855f7,
+                0 0 80px #a855f7;
+            animation: neon-pulse 1.5s infinite alternate;
+        }
+
+        @keyframes neon-pulse {
+            0% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #a855f7, 0 0 40px #a855f7, 0 0 80px #a855f7; }
+            100% { text-shadow: 0 0 2px #fff, 0 0 5px #fff, 0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #a855f7; }
+        }
         
         /* Grid for the inputs */
         .form-grid {
@@ -180,25 +200,45 @@ HTML_TEMPLATE = """
         }
 
         /* Classes added dynamically via JS */
-        .result-high { 
-            border-color: var(--color-high) !important; 
-            box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
-        }
+        .result-high { border-color: var(--color-high) !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.2); }
         .result-high .prediction-text { color: var(--color-high); }
 
-        .result-moderate { 
-            border-color: var(--color-moderate) !important; 
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
-        }
+        .result-moderate { border-color: var(--color-moderate) !important; box-shadow: 0 0 25px rgba(245, 158, 11, 0.2); }
         .result-moderate .prediction-text { color: var(--color-moderate); }
 
-        .result-low { 
-            border-color: var(--color-low) !important; 
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
-        }
+        .result-low { border-color: var(--color-low) !important; box-shadow: 0 0 25px rgba(16, 185, 129, 0.2); }
         .result-low .prediction-text { color: var(--color-low); }
 
         .prediction-text { font-size: 1.8rem; font-weight: bold; margin-bottom: 0.8rem; }
+
+        /* BALLOON CSS */
+        .balloon {
+            position: fixed;
+            bottom: -150px;
+            width: 40px;
+            height: 55px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            z-index: 9999;
+            pointer-events: none;
+            box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
+            animation: floatUp ease-in forwards;
+        }
+        /* The string hanging from the balloon */
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            width: 2px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateX(-50%);
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-130vh) rotate(20deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -389,6 +429,34 @@ HTML_TEMPLATE = """
             resultDiv.style.display = 'none';
         });
 
+        // Custom Balloon Generation Function
+        function spawnBalloons() {
+            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4'];
+            const balloonCount = 30; // How many balloons to spawn
+
+            for (let i = 0; i < balloonCount; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                
+                // Randomize starting horizontal position
+                balloon.style.left = Math.random() * 100 + 'vw';
+                
+                // Pick a random color from the list
+                balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Randomize animation duration (speed) and delay
+                balloon.style.animationDuration = (Math.random() * 3 + 4) + 's'; // Between 4 and 7 seconds
+                balloon.style.animationDelay = (Math.random() * 1.5) + 's'; // Stagger the spawns
+                
+                document.body.appendChild(balloon);
+                
+                // Clean up balloons after they float away (after 8 seconds)
+                setTimeout(() => {
+                    balloon.remove();
+                }, 8000);
+            }
+        }
+
         // Form Submission & API Call
         document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -443,6 +511,9 @@ HTML_TEMPLATE = """
                     resultDiv.offsetHeight; /* trigger reflow to restart animation */
                     resultDiv.style.animation = 'popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
                     
+                    // Trigger the balloons!
+                    spawnBalloons();
+
                     // Scroll to results
                     resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 } else {
