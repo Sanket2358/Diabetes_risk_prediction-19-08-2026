@@ -235,7 +235,7 @@ HTML_TEMPLATE = """
                     <input type="number" step="any" name="waist_circumference_cm" placeholder="e.g., 90 (Max: 200)" required>
                 </div>
 
-                <!-- CATEGORICAL DROPDOWNS WITHOUT NUMBERS IN DISPLAY TEXT -->
+                <!-- CATEGORICAL DROPDOWNS -->
                 
                 <div class="input-group">
                     <label>Gender</label>
@@ -288,38 +288,52 @@ HTML_TEMPLATE = """
                     </select>
                 </div>
 
+                <!-- UPDATED DIET TYPE -->
                 <div class="input-group">
                     <label>Diet Type</label>
                     <select name="diet_type" required>
                         <option value="" disabled selected>Select Diet</option>
-                        <option value="0">Type 0</option>
-                        <option value="1">Type 1</option>
-                        <option value="2">Type 2</option>
-                        <option value="3">Type 3</option>
+                        <option value="0">Non-Vegetarian</option>
+                        <option value="1">Pescatarian</option>
+                        <option value="2">Vegan</option>
+                        <option value="3">Vegetarian</option>
                     </select>
                 </div>
 
+                <!-- UPDATED CITY -->
                 <div class="input-group">
                     <label>City</label>
                     <select name="city" required>
-                        <option value="" disabled selected>Select City Code</option>
-                        <option value="0">City 0</option>
-                        <option value="1">City 1</option>
-                        <option value="2">City 2</option>
-                        <option value="3">City 3</option>
-                        <option value="4">City 4</option>
+                        <option value="" disabled selected>Select City</option>
+                        <option value="0">Ahmedabad</option>
+                        <option value="1">Bengaluru</option>
+                        <option value="2">Bhopal</option>
+                        <option value="3">Chennai</option>
+                        <option value="4">Delhi</option>
+                        <option value="5">Hyderabad</option>
+                        <option value="6">Indore</option>
+                        <option value="7">Jaipur</option>
+                        <option value="8">Kanpur</option>
+                        <option value="9">Kolkata</option>
+                        <option value="10">Lucknow</option>
+                        <option value="11">Mumbai</option>
+                        <option value="12">Nagpur</option>
+                        <option value="13">Patna</option>
+                        <option value="14">Pune</option>
+                        <option value="15">Surat</option>
+                        <option value="16">Thane</option>
+                        <option value="17">Visakhapatnam</option>
                     </select>
                 </div>
 
+               <!-- UPDATED INCOME BRACKET -->
                 <div class="input-group">
                     <label>Income Bracket</label>
                     <select name="income_bracket" required>
                         <option value="" disabled selected>Select Bracket</option>
-                        <option value="0">Bracket 0</option>
-                        <option value="1">Bracket 1</option>
-                        <option value="2">Bracket 2</option>
-                        <option value="3">Bracket 3</option>
-                        <option value="4">Bracket 4</option>
+                        <option value="0">High</option>
+                        <option value="1">Low</option>
+                        <option value="2">Middle</option>
                     </select>
                 </div>
 
